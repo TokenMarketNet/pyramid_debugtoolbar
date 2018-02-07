@@ -22,7 +22,7 @@ try:
 
     @event.listens_for(Engine, "before_cursor_execute")
     def _before_cursor_execute(conn, cursor, stmt, params, context, execmany):
-        setattr(conn, 'pdtb_start_timer', time.time())
+        conn.pdtb_start_timer = time.time()
 
     @event.listens_for(Engine, "after_cursor_execute")
     def _after_cursor_execute(conn, cursor, stmt, params, context, execmany):
@@ -41,7 +41,11 @@ try:
                     'parameters': params,
                     'context': context
                 })
-        delattr(conn, 'pdtb_start_timer')
+
+        try:
+            del conn.pdtb_start_timer
+        except AttributeError:
+            pass
 
     has_sqla = True
 except ImportError:
